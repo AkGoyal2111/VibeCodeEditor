@@ -13,6 +13,11 @@ interface ChatRequest {
 }
 
 async function generateAIResponse(messages: ChatMessage[]): Promise<string> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error("GEMINI_API_KEY is not configured in the environment variables.");
+  }
+
   const systemPrompt = `You are a helpful AI coding assistant. You help developers with:
 - Code explanations and debugging
 - Best practices and architecture advice  
@@ -22,40 +27,49 @@ async function generateAIResponse(messages: ChatMessage[]): Promise<string> {
 
 Always provide clear, practical answers. Use proper code formatting when showing examples.`;
 
-  const fullMessages = [{ role: "system", content: systemPrompt }, ...messages];
-
-  const prompt = fullMessages
-    .map((msg) => `${msg.role}: ${msg.content}`)
-    .join("\n\n");
+  const contents = messages.map((msg) => ({
+    role: msg.role === "assistant" ? "model" : "user",
+    parts: [{ text: msg.content }],
+  }));
 
   try {
-    const response = await fetch("http://localhost:11434/api/generate", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "codellama:latest",
-        prompt: prompt,
-        stream: false,
-        options: {
-          temperature: 0.7, // Controls randomness (0-1)
-          max_tokens: 1000, // Maximum response length
-          top_p: 0.9, // controls diversity
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      }),
-    });
+        body: JSON.stringify({
+          contents,
+          systemInstruction: {
+            parts: [{ text: systemPrompt }],
+          },
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 1024,
+          },
+        }),
+      }
+    );
 
-    const data = await response.json();
-
-    if (!data.response) {
-      throw new Error("No response from AI model");
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(`Gemini API returned error (${response.status}): ${errText}`);
     }
 
-    return data.response.trim();
+    const data = await response.json();
+    const candidate = data.candidates?.[0];
+    const text = candidate?.content?.parts?.[0]?.text;
+
+    if (!text) {
+      throw new Error("No text response received from Gemini API");
+    }
+
+    return text.trim();
   } catch (error) {
     console.error("AI generation error:", error);
-    throw new Error("Failed to generate AI response");
+    throw new Error(error instanceof Error ? error.message : "Failed to generate AI response");
   }
 }
 

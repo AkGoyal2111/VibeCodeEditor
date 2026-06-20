@@ -1,0 +1,13 @@
+{
+  "name": "hono-nodejs-starter",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node --experimental-strip-types src/index.ts",
+    "start": "node --experimental-strip-types src/index.ts"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.9.0",
+    "hono": "^4.0.0"
+  }
+}
