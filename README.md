@@ -109,7 +109,9 @@ Next.js in a plain Node HTTP server and attaches Socket.io on the same origin
 - **Video/audio calls**: a **WebRTC mesh** (one peer connection per participant)
   signalled over the same socket. The server only does signalling —
   introducing peers and relaying SDP/ICE — while media flows directly P2P.
-  Uses a public STUN server; cross-NAT calls would also need a TURN server.
+  Uses Google STUN plus a free public **TURN** relay so calls connect across
+  different networks/NATs out of the box; plug in your own TURN credentials
+  (Twilio, Metered, coturn) via `NEXT_PUBLIC_TURN_*` for production reliability.
 - **Whiteboard**: a shared canvas. Strokes use normalised (0..1) coordinates so
   they render identically regardless of each peer's canvas size, and are stored
   server-side so late joiners can replay the current board.
@@ -229,7 +231,8 @@ Visit `http://localhost:3000`.
 ## 🗺️ Roadmap
 
 - [ ] CRDT-based concurrent editing (Yjs + `y-monaco`) with live remote cursors
-- [ ] TURN server so video calls work across restrictive NATs
+- [x] TURN relay so video calls work across restrictive NATs (public relay by
+      default; bring-your-own via `NEXT_PUBLIC_TURN_*`)
 - [ ] Redis-backed rate limiting + presence for horizontal scaling
 - [ ] E2E tests (Playwright) for the editor and collaboration flows
 - [ ] Live demo deployment

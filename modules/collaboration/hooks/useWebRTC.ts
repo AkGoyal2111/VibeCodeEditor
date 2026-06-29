@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getCollabSocket } from "../lib/socket-client";
+import { getIceConfiguration } from "../lib/ice-servers";
 import { COLLAB_EVENTS, type RtcRelayedSignal } from "../types";
 
 interface UseWebRTCOptions {
@@ -27,12 +28,6 @@ interface UseWebRTCResult {
   toggleAudio: () => void;
   toggleVideo: () => void;
 }
-
-// Public STUN server is enough for same-network / localhost demos. Cross-NAT
-// calls would additionally need a TURN server.
-const ICE_SERVERS: RTCConfiguration = {
-  iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
-};
 
 /**
  * Mesh WebRTC audio/video calling layered on the collaboration socket. Each
@@ -84,7 +79,7 @@ export function useWebRTC({ roomId, enabled }: UseWebRTCOptions): UseWebRTCResul
       if (existing) return existing;
 
       const socket = getCollabSocket();
-      const pc = new RTCPeerConnection(ICE_SERVERS);
+      const pc = new RTCPeerConnection(getIceConfiguration());
 
       localStreamRef.current
         ?.getTracks()
