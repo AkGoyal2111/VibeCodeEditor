@@ -3,6 +3,7 @@
 import { db } from "@/lib/db";
 import { currentUser } from "@/modules/auth/actions";
 import { revalidatePath } from "next/cache";
+import { importGithubRepoToTemplate } from "@/lib/github-import";
 
 export const toggleStarMarked = async (
   playgroundId: string,
@@ -93,6 +94,51 @@ export const createPlayground = async (data: {
   } catch (error) {
     console.log(error);
   }
+};
+
+/**
+ * Import a public GitHub repository: fetch its files, create a playground, and
+ * persist the file tree so the editor opens the real repo contents (not a blank
+ * template). Returns the new playground id, or throws a user-friendly error.
+ */
+export const importGithubRepo = async (data: {
+  url: string;
+  title?: string;
+}) => {
+  const user = await currentUser();
+  if (!user?.id) {
+    throw new Error("You must be signed in to import a repository.");
+  }
+
+  // Fetch + assemble the repo into the editor's template format first, so we
+  // don't create an empty playground if the import fails.
+  const { tree, importedFiles, skipped } = await importGithubRepoToTemplate(
+    data.url
+  );
+
+  const repoName =
+    data.title?.trim() ||
+    data.url.replace(/\.git$/, "").split("/").pop() ||
+    "GitHub Repo";
+
+  const playground = await db.playground.create({
+    data: {
+      title: repoName,
+      description: `github:${data.url.trim()}`,
+      template: "REACT",
+      userId: user.id,
+    },
+  });
+
+  await db.templateFile.create({
+    data: {
+      playgroundId: playground.id,
+      content: JSON.stringify(tree),
+    },
+  });
+
+  revalidatePath("/dashboard");
+  return { id: playground.id, importedFiles, skipped };
 };
 
 export const deleteProjectById = async (id: string) => {

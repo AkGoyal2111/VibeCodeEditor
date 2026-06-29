@@ -15,7 +15,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { createPlayground } from "../actions";
+import { importGithubRepo } from "../actions";
 
 const AddRepo = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -57,20 +57,23 @@ const AddRepo = () => {
 
     setIsLoading(true);
     try {
-      // Create a playground using React template as the base, with repo URL in description
+      // Actually fetch the repo's files and import them into a new playground.
       const name = projectName || extractRepoName(repoUrl) || "GitHub Repo";
-      const res = await createPlayground({
-        title: name,
-        template: "REACT",
-        description: `github:${repoUrl.trim()}`,
-      });
-      toast.success(`Opening repository: ${name}`);
+      const res = await importGithubRepo({ url: repoUrl.trim(), title: name });
+      toast.success(
+        `Imported ${res.importedFiles} files from ${name}` +
+          (res.skipped ? ` (${res.skipped} skipped)` : "")
+      );
       setIsOpen(false);
       setRepoUrl("");
       setProjectName("");
-      router.push(`/playground/${res?.id}`);
+      router.push(`/playground/${res.id}`);
     } catch (error) {
-      toast.error("Failed to open repository. Please try again.");
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to import repository. Please try again."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -119,7 +122,9 @@ const AddRepo = () => {
               Open GitHub Repository
             </DialogTitle>
             <DialogDescription>
-              Enter a public GitHub repository URL to open it in the editor
+              Enter a public GitHub repository URL. Its files are imported into a
+              new playground (up to 300 text files; node_modules and build
+              output are skipped).
             </DialogDescription>
           </DialogHeader>
 
