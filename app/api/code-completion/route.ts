@@ -10,6 +10,7 @@ import {
   buildPrompt,
   type CodeContext,
 } from "@/modules/playground/lib/code-context";
+import { generateGeminiText } from "@/lib/gemini";
 
 interface CodeSuggestionRequest {
   fileContent: string;
@@ -88,48 +89,15 @@ export async function POST(request: NextRequest) {
 }
 
 async function generateSuggestion(prompt: string): Promise<string> {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    console.error("GEMINI_API_KEY is not configured in the environment variables.");
-    return "// AI suggestion unavailable";
-  }
-
   try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [
-            {
-              role: "user",
-              parts: [{ text: prompt }],
-            },
-          ],
-          generationConfig: {
-            temperature: 0.2,
-            maxOutputTokens: 300,
-          },
-        }),
-      }
+    const { text } = await generateGeminiText(
+      [{ role: "user", content: prompt }],
+      { temperature: 0.2, maxOutputTokens: 300 }
     );
 
-    if (!response.ok) {
-      const errText = await response.text();
-      throw new Error(`AI service error (${response.status}): ${errText}`);
-    }
+    let suggestion = text;
 
-    const data = await response.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-
-    if (!text) {
-      throw new Error("No suggestion text received from Gemini API");
-    }
-
-    let suggestion = text.trim();
-
-    // Clean up the suggestion
+    // Strip fenced code blocks the model may wrap the snippet in.
     if (suggestion.includes("```")) {
       const codeMatch = suggestion.match(/```[\w]*\n?([\s\S]*?)```/);
       suggestion = codeMatch ? codeMatch[1].trim() : suggestion;
