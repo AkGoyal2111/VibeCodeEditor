@@ -47,7 +47,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import "katex/dist/katex.min.css";
 import Image from "next/image";
-import Stream from "stream";
 
 interface ChatMessage {
     role: "user" | "assistant";
@@ -123,7 +122,7 @@ export const AIChatSidePanel: React.FC<AIChatSidePanelProps> = ({
     const [filterType, setFilterType] = useState<string>("all");
     const [autoSave, setAutoSave] = useState(true);
     const [streamResponse, setStreamResponse] = useState(true);
-    const [model, setModel] = useState<string>("gpt-6");
+    const [model, setModel] = useState<string>("gemini-2.5-flash");
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -391,9 +390,10 @@ export const AIChatSidePanel: React.FC<AIChatSidePanelProps> = ({
                                             onChange={(e) => setModel(e.target.value)}
                                             className="bg-zinc-900/60 border border-zinc-800 rounded px-2 py-1 text-zinc-200 focus:outline-none"
                                         >
-                                            <option value="gpt-6">gpt-6</option>
-                                            <option value="codellama">codellama</option>
-                                            <option value="llama2">llama2</option>
+                                            <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+                                            <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+                                            <option value="gemini-2.0-flash-lite">Gemini 2.0 Flash Lite</option>
+                                            <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
                                         </select>
                                     </div>
                                     <div className="relative">
