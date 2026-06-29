@@ -15,7 +15,7 @@ import {
 // so this protects both our Gemini quota and the service from abuse.
 const chatLimiter = new RateLimiter({ limit: 20, windowMs: 60_000 });
 
-const SYSTEM_PROMPT = `You are an expert AI coding assistant embedded in Vibecode Editor — a collaborative, browser-based IDE. Help developers with:
+const SYSTEM_PROMPT = `You are an expert AI coding assistant embedded in CodeNest — a collaborative, browser-based IDE. Help developers with:
 - Code explanations, debugging, and error fixing
 - Architecture advice and best practices
 - Writing clean, efficient, well-typed code

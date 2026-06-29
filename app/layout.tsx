@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Vibecode Editor – AI-Powered Collaborative Web IDE",
+  title: "CodeNest — AI-Powered Collaborative Code Editor",
   description:
     "A browser-based IDE with in-browser code execution (WebContainers), AI code completion and chat (Gemini), and real-time collaboration: multiplayer editing, video calls and a shared whiteboard.",
 };
