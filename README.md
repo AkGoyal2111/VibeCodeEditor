@@ -18,12 +18,19 @@ Socket.io collaboration server.
 - 🗂️ **Custom File Explorer** – Create, rename, delete and manage files/folders,
   with open-tab and unsaved-change tracking (Zustand store).
 - 🖊️ **Enhanced Monaco Editor** – Syntax highlighting, formatting, keybindings.
-- 💡 **AI Code Completion (Gemini)** – Context-aware inline suggestions. The
-  server analyses the surrounding code (language, framework, scope, incomplete
-  patterns) before prompting the model. Trigger on `Ctrl + Space`, accept with `Tab`.
-- 🤖 **AI Chat Assistant (Gemini)** – Ask for explanations, refactors and fixes.
+- 💡 **AI Code Completion (Gemini 2.5 Flash)** – Context-aware inline
+  suggestions. The server analyses the surrounding code (language, framework,
+  scope, incomplete patterns) before prompting the model. Trigger on
+  `Ctrl + Space`, accept with `Tab`.
+- 🤖 **AI Chat Assistant (Gemini 2.5 Flash)** – Ask for explanations, refactors
+  and fixes, with a model selector and automatic fallback across free-tier
+  models when a quota is hit.
 - 👥 **Real-time Collaboration** – Share a playground link and edit together.
   Live presence (who's here / what file they're on) and code sync over WebSockets.
+- 🧩 **Collaborative DSA Practice** – A curated library of classic algorithm
+  problems, each opening a shared room: statement + examples + progressive
+  hints on one side, a live multiplayer editor (JS/TS/Python/Java/C++) on the
+  other. Reuses the same collaboration layer (presence, video call, whiteboard).
 - 🎥 **Video/Audio Calls** – Built-in WebRTC mesh calling with mic/camera toggles.
 - 🖌️ **Collaborative Whiteboard** – Shared canvas for sketching ideas together.
 - ⚙️ **WebContainers Integration** – Run frontend/backend apps in-browser, with
@@ -41,7 +48,7 @@ Socket.io collaboration server.
 | Language       | TypeScript                                   |
 | Auth           | NextAuth v5 (Google + GitHub OAuth, JWT)     |
 | Editor         | Monaco Editor                                |
-| AI             | Google Gemini API (`gemini-1.5-flash`)       |
+| AI             | Google Gemini API (`gemini-2.5-flash` + fallback) |
 | Realtime       | Socket.io (custom server) + WebRTC           |
 | Runtime        | WebContainers                                |
 | Terminal       | xterm.js                                     |
@@ -114,6 +121,26 @@ and [`WhiteboardStore`](modules/collaboration/server/whiteboard-store.ts).
 
 ---
 
+## 🧩 Collaborative DSA
+
+Open `/dsa` for a curated set of classic algorithm problems (arrays, stacks,
+binary search, DP, graphs, sliding window, linked lists, design). Each problem
+opens a shared room at `/dsa/<slug>`:
+
+- **Statement panel** – markdown problem, worked examples, constraints and
+  progressive hints you reveal one at a time.
+- **Multiplayer editor** – a shared Monaco editor synced in real time over the
+  same collaboration layer (room id `dsa-<slug>`). Each language
+  (JS/TS/Python/Java/C++) is its own synced document, so switching language is
+  non-destructive.
+- **Same toolkit as the playground** – presence avatars, Share link, and the
+  Collaborate drawer (video call + whiteboard) all carry over.
+
+Problems are static, validated content in
+[`modules/dsa/data/problems.ts`](modules/dsa/data/problems.ts).
+
+---
+
 ## 🔒 Security
 
 - **Auth on AI routes**: `/api/chat` and `/api/code-completion` require an
@@ -126,7 +153,7 @@ and [`WhiteboardStore`](modules/collaboration/server/whiteboard-store.ts).
 
 ## 🧪 Testing
 
-[Vitest](https://vitest.dev/) covers the core logic (65 tests):
+[Vitest](https://vitest.dev/) covers the core logic (72 tests):
 
 ```bash
 npm test          # run once
@@ -134,8 +161,8 @@ npm run test:watch
 ```
 
 Covered: the rate limiter, AI code-context analysis, file-path utilities, the
-Zustand file-explorer store, and the collaboration server classes
-(`RoomManager`, `CallRegistry`, `WhiteboardStore`).
+Zustand file-explorer store, the DSA problem dataset, and the collaboration
+server classes (`RoomManager`, `CallRegistry`, `WhiteboardStore`).
 
 ---
 
