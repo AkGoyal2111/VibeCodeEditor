@@ -1,8 +1,8 @@
-# 🧠 Vibecode Editor – AI-Powered, Collaborative Web IDE
+# 🧠 CodeNest – AI-Powered, Collaborative Web IDE
 
-![Vibecode Editor Thumbnail](public/vibe-code-editor-thumbnaail.svg)
+> Built by [AkGoyal](https://github.com/AkGoyal2111)
 
-**Vibecode Editor** is a browser-based IDE built with **Next.js (App Router)**,
+**CodeNest** is a browser-based IDE built with **Next.js (App Router)**,
 **WebContainers**, and the **Monaco Editor**. It runs real Node.js projects
 entirely in the browser, offers **AI-powered code completion and chat** via the
 **Google Gemini API**, and supports **real-time multiplayer editing** through a
