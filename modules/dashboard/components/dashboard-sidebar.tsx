@@ -19,6 +19,7 @@ import {
   Zap,
   Database,
   FlameIcon,
+  Binary,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -89,7 +90,15 @@ export function DashboardSidebar({ initialPlaygroundData }: { initialPlaygroundD
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
-          
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild isActive={pathname.startsWith("/dsa")} tooltip="Collaborative DSA">
+                <Link href="/dsa">
+                  <Binary className="h-4 w-4" />
+                  <span>Collaborative DSA</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+
           </SidebarMenu>
         </SidebarGroup>
 
