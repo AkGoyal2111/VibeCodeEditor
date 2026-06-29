@@ -36,7 +36,6 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import Image from "next/image"
 
 // Define the interface for a single playground item, icon is now a string
 interface PlaygroundData {
@@ -66,9 +65,14 @@ export function DashboardSidebar({ initialPlaygroundData }: { initialPlaygroundD
   return (
     <Sidebar variant="inset" collapsible="icon" className="border-1 border-r">
       <SidebarHeader>
-        <div className="flex items-center gap-2 px-4 py-3 justify-center">
-          <Image src={"/logo.svg"} alt="logo" height={60} width={60} />
-        </div>
+        <Link href="/" className="flex items-center gap-2 px-4 py-3 justify-center">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-linear-to-br from-rose-500 to-pink-500 text-white shrink-0">
+            <Code2 className="h-5 w-5" />
+          </span>
+          <span className="font-extrabold tracking-tight group-data-[collapsible=icon]:hidden">
+            Code<span className="text-rose-500">Nest</span>
+          </span>
+        </Link>
        
       </SidebarHeader>
       <SidebarContent>
