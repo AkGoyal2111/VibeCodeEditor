@@ -91,7 +91,8 @@ export async function POST(req: NextRequest) {
       model: model || DEFAULT_GEMINI_MODEL,
       system: SYSTEM_PROMPT,
       temperature: 0.7,
-      maxOutputTokens: 2048,
+      // Thinking is disabled in the helper, so the full budget is the answer.
+      maxOutputTokens: 4096,
     });
 
     return NextResponse.json(

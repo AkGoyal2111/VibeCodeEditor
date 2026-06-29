@@ -30,6 +30,12 @@ export interface GeminiCallOptions {
   system?: string;
   temperature?: number;
   maxOutputTokens?: number;
+  /**
+   * Allow the 2.5 model to "think" before answering. Off by default because
+   * thinking consumes the output-token budget and adds latency; enable it only
+   * for hard reasoning tasks where you also raise maxOutputTokens.
+   */
+  thinking?: boolean;
 }
 
 export interface GeminiResult {
@@ -61,6 +67,15 @@ async function callModel(
     parts: [{ text: m.content }],
   }));
 
+  // Gemini 2.5 models "think" before answering, which silently consumes the
+  // output-token budget — a long answer can come back truncated or empty with
+  // finishReason MAX_TOKENS. Unless the caller explicitly wants thinking, we
+  // turn it off (thinkingBudget: 0) so every token goes to the actual answer.
+  // thinkingConfig is only valid on 2.5 models.
+  const is25 = modelId.startsWith("gemini-2.5");
+  const thinkingConfig =
+    is25 && !opts.thinking ? { thinkingConfig: { thinkingBudget: 0 } } : {};
+
   const res = await fetch(
     `${ENDPOINT}/${modelId}:generateContent?key=${apiKey}`,
     {
@@ -74,6 +89,7 @@ async function callModel(
         generationConfig: {
           temperature: opts.temperature ?? 0.7,
           maxOutputTokens: opts.maxOutputTokens ?? 2048,
+          ...thinkingConfig,
         },
       }),
     }
@@ -85,13 +101,19 @@ async function callModel(
   }
 
   const data = await res.json();
-  const text: string | undefined =
-    data.candidates?.[0]?.content?.parts?.[0]?.text;
+  const candidate = data.candidates?.[0];
+  // Join all text parts (a response may be split across several parts).
+  const text: string | undefined = candidate?.content?.parts
+    ?.map((p: { text?: string }) => p.text ?? "")
+    .join("")
+    .trim();
   if (!text) {
-    const finish = data.candidates?.[0]?.finishReason;
-    throw new Error(`Empty response from ${modelId}${finish ? ` (${finish})` : ""}`);
+    const finish = candidate?.finishReason;
+    throw new Error(
+      `Empty response from ${modelId}${finish ? ` (${finish})` : ""}`
+    );
   }
-  return { text: text.trim(), model: modelId };
+  return { text, model: modelId };
 }
 
 /**
