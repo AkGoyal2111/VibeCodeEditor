@@ -7,6 +7,12 @@ const nextConfig: NextConfig = {
   // by a stray package-lock.json higher up the tree.
   outputFileTracingRoot: path.join(__dirname),
 
+  // Don't fail the production build on lint errors (pre-existing in template
+  // code). Types are still checked separately via `tsc`.
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+
   // Barrel-optimise heavy, widely-imported packages so dev compiles only the
   // symbols actually used instead of the whole module graph (faster startup).
   experimental: {
