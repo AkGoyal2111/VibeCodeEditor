@@ -120,5 +120,9 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
   secret: process.env.AUTH_SECRET,
   adapter: PrismaAdapter(db),
   session: { strategy: "jwt" },
+  // Trust the deployment host (Render/Railway/etc.) so sign-in and sign-out
+  // resolve callback URLs correctly behind a proxy. Without this, auth works
+  // locally but breaks on the deployed site.
+  trustHost: true,
   ...authConfig,
 })

@@ -11,12 +11,16 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { LogOut, User } from "lucide-react";
-import LogoutButton from "./logout-button";
+import { signOut } from "next-auth/react";
 import { useCurrentUser } from "../hooks/use-current-user";
 
 const UserButton = () => {
 
   const user = useCurrentUser()
+
+  const handleLogout = async () => {
+    await signOut({ redirectTo: "/" });
+  };
 
   return (
     <DropdownMenu>
@@ -38,12 +42,16 @@ const UserButton = () => {
         </span>
       </DropdownMenuItem>
       <DropdownMenuSeparator/>
-        <LogoutButton>
-            <DropdownMenuItem>
-                <LogOut className="h-4 w-4 mr-2"/>
-                LogOut
-            </DropdownMenuItem>
-        </LogoutButton>
+        <DropdownMenuItem
+          onSelect={(e) => {
+            e.preventDefault();
+            handleLogout();
+          }}
+          className="cursor-pointer text-red-600 focus:text-red-600"
+        >
+          <LogOut className="h-4 w-4 mr-2"/>
+          Log out
+        </DropdownMenuItem>
     </DropdownMenuContent>
 
     </DropdownMenu>

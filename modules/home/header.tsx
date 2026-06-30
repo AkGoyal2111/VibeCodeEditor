@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Code2, Github } from "lucide-react";
+import { Code2 } from "lucide-react";
 import UserButton from "../auth/components/user-button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
@@ -51,15 +51,6 @@ export function Header() {
                     className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
                   >
                     DSA Rooms
-                  </Link>
-                  <Link
-                    href="https://github.com/AkGoyal2111/VibeCodeEditor"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors flex items-center gap-1.5"
-                  >
-                    <Github className="h-3.5 w-3.5" />
-                    GitHub
                   </Link>
                 </div>
               </div>
