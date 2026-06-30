@@ -17,8 +17,9 @@ import { Server as SocketIOServer } from "socket.io";
 import { registerCollaboration } from "./modules/collaboration/server";
 
 const dev = process.env.NODE_ENV !== "production";
-const hostname = process.env.HOST || "localhost";
 const port = parseInt(process.env.PORT || "3000", 10);
+// On Render/Railway the server must bind to 0.0.0.0, not localhost.
+const hostname = dev ? "localhost" : "0.0.0.0";
 
 const app = next({ dev, hostname, port });
 const handle = app.getRequestHandler();
@@ -35,12 +36,15 @@ app.prepare().then(() => {
     }
   });
 
+  const allowedOrigin = process.env.NEXT_PUBLIC_APP_URL || `http://localhost:${port}`;
   const io = new SocketIOServer(httpServer, {
     path: "/api/socket",
     cors: {
-      origin: process.env.NEXT_PUBLIC_APP_URL || `http://${hostname}:${port}`,
+      origin: [allowedOrigin, "http://localhost:3000"],
       methods: ["GET", "POST"],
+      credentials: true,
     },
+    transports: ["websocket", "polling"],
   });
 
   registerCollaboration(io);
